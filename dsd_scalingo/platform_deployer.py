@@ -236,7 +236,11 @@ class PlatformDeployer:
 
         path_post_deploy = path_bin / "post_deploy.sh"
         contents = "#!/bin/sh\n\npython manage.py migrate\n"
-        plugin_utils.add_file(path_post_deploy, contents)
+        # Make sure that the file has Unix-style (line feed) line terminators.
+        # Under Windows the default is carriage return + line feed which
+        # would cause "command not found" errors when post_deploy.sh runs
+        # in a Scalingo Ubuntu container.
+        plugin_utils.add_file(path_post_deploy, contents, newline='\n')
 
     def _add_requirements(self):
         """Add requirements for deploying to Scalingo."""
